@@ -1,0 +1,154 @@
+package com.scb;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.Statement;
+
+public class ProperCRUD {
+	// Declaring Instance Variables
+	private Statement stmt = null;
+	private ResultSet rs = null;
+	private Connection conn = null;
+	private PreparedStatement pstmt = null;
+
+	public void connect() {
+		try {
+			// Step 1 : Loading & Registering the Driver
+			Class.forName("org.postgresql.Driver");
+
+			// Step 2 : Establishing the connection
+			String url = "jdbc:postgresql://localhost:5432/Project";
+			this.conn = DriverManager.getConnection(url, "postgres", "postgres");
+		} catch (Exception e) {
+			System.out.println("Exception in connect:" + e.getMessage());
+		}
+
+	}
+
+	// Display the Table Content
+	public ResultSet displayAll() {
+		String query = "select * from \"Customer\"";
+		try {
+			this.stmt = this.conn.createStatement();
+			this.rs = this.stmt.executeQuery(query);
+		} catch (Exception e) {
+			System.out.println("Exception in displayAll:" + e.getMessage());
+		}
+		return this.rs;
+	}
+
+	public ResultSet display(int customerId) {
+		String query = "select * from \"Customer\" where customer_id=" + customerId;
+		try {
+			this.stmt = this.conn.createStatement();
+			this.rs = this.stmt.executeQuery(query);
+		} catch (Exception e) {
+			System.out.println("Exception in display:" + e.getMessage());
+		}
+		return this.rs;
+	}
+
+	public int insert() {
+		String insertQuery = "insert into \"Customer\" values (?,?,?,?)";
+		int insertStatus = 0;
+		try {
+			pstmt = conn.prepareStatement(insertQuery);
+			pstmt.setInt(1, 107);
+			pstmt.setString(2, "Dennis");
+			pstmt.setLong(3, 9876455676l);
+			pstmt.setString(4, "dennis@c.com");
+
+			insertStatus = pstmt.executeUpdate();
+		} catch (Exception e) {
+			System.out.println("Exception in Insert:" + e.getMessage());
+		}
+
+		return insertStatus;
+	}
+
+	public int update() {
+		String updateQuery = "update \"Customer\"  set customer_name=?, mobile=?, email=? where customer_id=?";
+		int updateStatus = 0;
+		try {
+			pstmt = conn.prepareStatement(updateQuery);
+			pstmt.setString(1, "dennisRitchie");
+			pstmt.setLong(2, 9878677856l);
+			pstmt.setString(3, "ritchie@dennis.com");
+			pstmt.setInt(4, 107);
+
+			updateStatus = pstmt.executeUpdate();
+		} catch (Exception e) {
+			System.out.println("Exception in Update:" + e.getMessage());
+		}
+		return updateStatus;
+	}
+
+	public int delete(int customerId) {
+		String deleteQuery = "delete from  \"Customer\" where customer_id=?";
+		int deleteStatus = 0;
+		try {
+			pstmt = conn.prepareStatement(deleteQuery);
+			pstmt.setInt(1, 107);
+			deleteStatus = pstmt.executeUpdate();
+		} catch (Exception e) {
+			System.out.println("Exception in delete:" + e.getMessage());
+		}
+		return deleteStatus;
+	}
+
+	public void closeResources() {
+		try {
+			if (this.rs != null)
+				this.rs.close();
+			if (this.stmt != null)
+				this.stmt.close();
+			if (this.pstmt != null)
+				this.pstmt.close();
+			if (this.conn != null)
+				this.conn.close();
+		} catch (Exception e) {
+			System.out.println("Exception in close:" + e.getMessage());
+		}
+
+	}
+
+	public static void main(String[] args) {
+		ProperCRUD proper = new ProperCRUD();
+		proper.connect();
+
+		if (proper.insert() > 0) {
+			System.out.println("Successfully Inserted!!!");
+		}
+
+		if (proper.update() > 0) {
+			System.out.println("Successfully Updated!!!");
+		}
+		
+		try {
+			ResultSet rs1 = proper.display(104);
+			if (rs1.next()) {
+				System.out.println(rs1.getInt(1) + " " + rs1.getString(2) + " " + rs1.getLong(3) + " " + rs1.getString(4));
+			}
+		} catch (Exception e) {
+			System.out.println("Exception in Read :" + e.getMessage());
+		}
+		
+		try {
+			ResultSet rs1 = proper.displayAll();
+			while (rs1.next()) {
+				System.out.println(rs1.getInt(1) + " " + rs1.getString(2) + " " + rs1.getLong(3) + " " + rs1.getString(4));
+			}
+		} catch (Exception e) {
+			System.out.println("Exception in Read :" + e.getMessage());
+		}
+		
+		if (proper.delete(105) > 0) {
+			System.out.println("Successfully Deleted!!!");
+		}
+		
+		proper.closeResources();
+	}
+
+}
