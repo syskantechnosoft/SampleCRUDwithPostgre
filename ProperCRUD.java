@@ -135,6 +135,32 @@ public class ProperCRUD {
 		
 		obj.findAll();
 		
+		System.out.println("Enter employee id for update :");
+		id= input.nextInt();
+		System.out.println("Enter employee name for update");
+		name = input.next();
+		status = 0;
+		status = obj.update(id, name);
+		if (status>0) {
+			System.out.println("1 Record updated successfully");
+		}else {
+			System.out.println("Error while updating data..");
+		}
+		
+		obj.findAll();
+		
+		
+		System.out.println("Enter employee id for delete :");
+		id= input.nextInt();
+		status = 0;
+		status = obj.delete(id);
+		if (status>0) {
+			System.out.println("1 Record deleted successfully");
+		}else {
+			System.out.println("Error while deleting data..");
+		}
+		
+		
 		obj.closeResource();
 		
 	}
